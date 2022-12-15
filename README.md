@@ -1,4 +1,4 @@
-# Cdiversity: Quantifying B Cell Clonal Diversity In Repertoire Data
+# Cdiversity: Quantifying B-Cell Clonal Diversity In Repertoire Data
 
 <img align="right" src="https://raw.githubusercontent.com/Aurelien-Pelissier/cdiversity/master/Images/dprofile.png" width=350>
 Advances in high-throughput sequencing technologies have enabled the high-throughput characterization of B cell receptor sequencing data. Still, the accurate identification of clonally related BCR sequences remains a difficult challenge. Importantly, different methods may lead to different clonal definitions, which in turn can affect the quantification of clonal diversity in repertoire data [1]. This library provide the users different tools and metrics to (i) group B-cell repertoires into clonal groups and (ii) compute diversity indices and diversity profiles from the obtained groups.
