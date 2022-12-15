@@ -19,4 +19,4 @@ First, you need to install cdiversity, or you can use the `cdiversity.py` file p
 
 ## References
 
-[1] Pélissier, A, Luo, S, et al. "Quantifying B Cell Clonal Diversity In Repertoire Data". Frontier in immunology (2022)
+[1] Pélissier, A, Luo, S, et al. "Quantifying B Cell Clonal Diversity In Repertoire Data". *Submitted to Frontier in immunology* (2022) [[Preprint]](https://www.biorxiv.org/content/10.1101/2022.12.12.520133)
