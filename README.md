@@ -20,7 +20,7 @@ First, you need to install cdiversity, or you can use the `cdiversity.py` file p
 Then, you can run a repertoire analysis simulation with the toy example below. For a more complete overview, you can check out `Examples/Analyze_sample.py`.
 Briefly, the analysis start by grouping Bcell into clones, and then use the obtained groups to compute various diversity metrics.
 
-#### (I) Group repertoire into clones
+#### (I) Grouping repertoire into clones
 
 Available methods for clonal identification are `junction`, which simply group clones together only if they have the same junction. Then, there is the commonly used `VJ-junction` methods, which group together BCR with the same V and J genes, as well as some user-specificed junction similarity (clone_threshold). Finally, the last method is `alignfree`, which compute tf-idf embedings of the BCRs to perform a fast clustering without relying on the V and J germline genes alignements.
 	
@@ -34,7 +34,7 @@ Available methods for clonal identification are `junction`, which simply group c
 	
 
 
-#### (II) Compute diversity indices
+#### (II) Computing diversity indices
 Once the clonal groups are obtained, you can compute any diversity indices or the Hill's diversity profile with a single command.
 Implemented indices are richness, richness_chao, Shannon_entropy, Shannon_entropy_chao, Simpson_index, dominance, eveness.
 
