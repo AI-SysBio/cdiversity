@@ -33,16 +33,16 @@ Available methods for clonal identification are *"junction"*, which simply group
 	clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = threshold)
 	
 
-      
-
 
 #### (II) Compute diversity indices
-Once the clonal groups are obtained, you can compute any diversity indices with the simple command
+Once the clonal groups are obtained, you can compute any diversity indices or the Hill's diversity profile with a single command.
+Implemented indices are richness, richness_chao, Shannon_entropy, Shannon_entropy_chao, Simpson_index, dominance, eveness.
 
 	from collections import Counter
 	
-	clone_dict = Counter(clone_VJJ)
+    	clone_dict = Counter(clone_VJJ)
     	diversity = cdiversity.Shannon_entropy_Chao(clone_dict)
+	div_profile, alpha_axis = cdiversity.diversity_profile(clone_dict)
 
 
 
