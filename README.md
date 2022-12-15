@@ -2,7 +2,7 @@
 A Python library for computing clonal relationship and diversity in B cell repertoire data
 
 <img align="right" src="https://raw.githubusercontent.com/Aurelien-Pelissier/cdiversity/master/Images/dprofile.png" width=400>
-Advances in high-throughput sequencing technologies have enabled the high-throughput characterization of B cell receptor sequencing data, however, the accurate identification of clonally related BCR sequences remains a major challenge. In this study, we compare three different clone identification methods on both simulated and experimental data, and investigate their impact on the characterization of B cell diversity. We find that different methods may lead to different clonal definitions, which in turn can affect the quantification of clonal diversity in repertoire data. Interestingly, we find the Shannon entropy to be overall the most robust diversity index in regards to different clonal identification. [1].
+Advances in high-throughput sequencing technologies have enabled the high-throughput characterization of B cell receptor sequencing data. Still, the accurate identification of clonally related BCR sequences remains a difficult challenge. Importantly, different methods may lead to different clonal definitions, which in turn can affect the quantification of clonal diversity in repertoire data [1]. This library provide the users different tools and metrics to (i) group Bcell repertoires into clonal groups and (2) compute diversity indices and diversity profiles from the obtained groups.
 
 &nbsp;
 
