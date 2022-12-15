@@ -12,7 +12,7 @@ Advances in high-throughput sequencing technologies have enabled the high-throug
         
 ### Running the analysis
 
-First, you need to install cdiversity, or you can use the `cdiversity.py` file provided in the repository:
+First, you need to install cdiversity, or alternatively you can use the `cdiversity.py` file provided in the repository:
 
 	- pip install cdiversity
 	
