@@ -42,7 +42,7 @@ Implemented indices are richness, richness_chao, Shannon_entropy, Shannon_entrop
 	
     	clone_dict = Counter(clone_VJJ)
     	diversity = cdiversity.Shannon_entropy_Chao(clone_dict)
-	div_profile, alpha_axis = cdiversity.diversity_profile(clone_dict)
+    	div_profile, alpha_axis = cdiversity.diversity_profile(clone_dict)
 
 
 
