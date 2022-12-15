@@ -29,9 +29,7 @@ Available methods for clonal identification are *junction*, which simple group c
 	import cdiversity
 
 	#Load data
-	sample_file = 'Data/sample.csv'
-	df = pd.read_csv(sample_file, sep='\t') 
-	
+	df = pd.read_csv('Data/sample.csv', sep='\t') 
 	clones_baseline, _ = cdiversity.identify_clonal_group(df, method='junction')
 	clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = threshold)
 	
