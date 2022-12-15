@@ -22,20 +22,19 @@ Briefly, the analysis start by grouping Bcell into clones, and then use the obta
 
 #### (I) Group repertoire into clones
 
-	import REGIR as gil
+	import pandas as pd
+	import cdiversity
 
-	#Set the simulation parameters:
-	class param:
-		Tend = 10		#Length of the simulation
-		N_simulations = 20	#The simulation results should be averaged over many trials
-		unit = 'h'		#Unit of time (used for plotting only)
-		timepoints = 100	#Number of timepoints to record (used for plotting only)
+	#Load data
+	sample_file = 'Data/sample.csv'
+	df = pd.read_csv(sample_file, sep='\t') 
+	
+	clones_baseline, _ = cdiversity.identify_clonal_group(df, method='junction')
+	clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = threshold)
+	
+Available methods for clonal identification are *junction*, which simple group clones together only if they have the same junction. Then, there is the commonly used *VJ-junction* methods, which group together BCR with the same V and J genes, as well as some user-specificed junction similarity (clone_threshold). Finally, the last method is *alignfree*, which compute tf-idf embedings of the BCRs to perform a fast clustering without relying on the V and J germline genes alignements.
+	
 
-	r1 = 1
-	r2 = 4
-	r3 = 0.03
-	alpha1 = 20
-	alpha2 = 5
       
 
 
