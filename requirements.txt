@@ -1,1 +1,7 @@
+numpy
+pandas
+matplotlib
+scipy
+sklearn
+Levenshtein
 sparse-dot-topn
