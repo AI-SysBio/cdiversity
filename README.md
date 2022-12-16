@@ -22,7 +22,6 @@ Briefly, the analysis start by grouping Bcell into clones, and then use the obta
 #### (I) Grouping repertoire into clones
 
 Available methods for clonal identification are `junction`, which simply group clones together only if they have the same junction. Then, there is the commonly used `VJ-junction` methods, which group together BCR with the same V and J genes, as well as some user-specificed junction similarity (clone_threshold). Finally, the last method is `alignfree`, which compute tf-idf embedings of the BCRs to perform a fast clustering without relying on the V and J germline genes alignements.
-	
 
 	import pandas as pd
 	import cdiversity
@@ -30,6 +29,8 @@ Available methods for clonal identification are `junction`, which simply group c
 	df = pd.read_csv('Data/sample.csv', sep='\t') 
 	clones_baseline, _ = cdiversity.identify_clonal_group(df, method='junction')
 	clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = 0.1)
+	
+For the alignement free method, you need to compute the optimal threshold first using the negation sequence. Something important to keep in mind is that the optimal threshold will be different for each repertoire as it depends on the learned tf-idf embeddings. Please refer to `Examples/Analyze_sample.py` to see how to proceed.
 	
 
 
