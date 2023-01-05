@@ -43,6 +43,10 @@ Implemented indices are richness, richness_chao, Shannon_entropy, Shannon_entrop
     	clone_dict = Counter(clone_VJJ)
     	diversity = cdiversity.Shannon_entropy_Chao(clone_dict)
     	div_profile, alpha_axis = cdiversity.diversity_profile(clone_dict)
+	
+	
+<!-- #### (III) Computing Chao diversity indices
+Add some plots and show the chao indices, explain that it's only integers -->
 
 
 
