@@ -29,7 +29,7 @@ def main():
     
     print('VJ-junction Clone identification...')
     print('  Computing distance to negation..')
-    threshold = cdiversity.compute_negation_threshold(df['junctionH'].to_numpy(),df_neg['junctionH'].to_numpy(), metric = 'levenshtein', tol = 0.03, plot=True)
+    threshold = cdiversity.compute_negation_threshold(df['junctionH'].to_numpy(),df_neg['junctionH'].to_numpy(), metric = 'levenshtein', tol = 0.01, plot=True)
     print('  Clustering sequences..')
     clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = threshold)
     print('Done\n')
@@ -68,27 +68,7 @@ def main():
     
     
     # 3 - Compute the diversity profiles and clone accumulation curves
-    print('\n\nDiversity analysis')
-    curve_true = cdiversity.cal_accumulation_curve(Counter(clone_true))
-    curve_baseline = cdiversity.cal_accumulation_curve(Counter(clone_baseline))
-    curve_VJJ = cdiversity.cal_accumulation_curve(Counter(clone_VJJ))
-    curve_AF = cdiversity.cal_accumulation_curve(Counter(clone_AF))
-    
-    plt.figure(figsize=(8,4))
-    plt.title('Clone accumulation curve')
-    plt.plot(curve_true, lw=2, label = 'G0')
-    plt.plot(curve_baseline, lw=2, label = 'JO')
-    plt.plot(curve_VJJ, lw=2, label = 'VJJ')
-    plt.plot(curve_AF, lw=2, label = 'AF')
-    plt.legend(fontsize=16)
-    plt.xlabel('Sequences')
-    plt.ylabel('Clones')
-    plt.xlim(xmin=1)
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.show()
-    
-    
+    print('\n\nDiversity analysis')  
     
     div_profile_true, alpha_axis = cdiversity.diversity_profile(Counter(clone_true))
     div_profile_baseline, _ = cdiversity.diversity_profile(Counter(clone_baseline))
@@ -110,9 +90,32 @@ def main():
     
     clone_dict = Counter(clone_true)
     print('True Richness: %.0f' % cdiversity.richness(clone_dict))
-    print('True Richness Chao: %.0f' % cdiversity.richness_chao(clone_dict))
+    print('True Richness Chao: %.0f' % cdiversity.richness_Chao(clone_dict))
     print('True Shannon entropy: %.2f' % cdiversity.Shannon_entropy(clone_dict))
     print('True Shannon entropy Chao: %.2f' % cdiversity.Shannon_entropy_Chao(clone_dict))
+    
+    
+    # 4 - Dealing with incomplete sample information:
+    print('\n\nDealing with incomplete sample information')
+        
+    curve_true = cdiversity.cal_accumulation_curve(Counter(clone_true), Nrepeat = 10)
+    curve_baseline = cdiversity.cal_accumulation_curve(Counter(clone_baseline), Nrepeat = 10)
+    curve_VJJ = cdiversity.cal_accumulation_curve(Counter(clone_VJJ), Nrepeat = 10)
+    curve_AF = cdiversity.cal_accumulation_curve(Counter(clone_AF), Nrepeat = 10)
+    
+    plt.figure(figsize=(8,4))
+    plt.title('Clone accumulation curve')
+    plt.plot(curve_true, lw=2, label = 'G0')
+    plt.plot(curve_baseline, lw=2, label = 'JO')
+    plt.plot(curve_VJJ, lw=2, label = 'VJJ')
+    plt.plot(curve_AF, lw=2, label = 'AF')
+    plt.legend(fontsize=16)
+    plt.xlabel('Sequences')
+    plt.ylabel('Clones')
+    plt.xlim(xmin=1)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.show()
     
     
     

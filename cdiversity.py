@@ -536,7 +536,7 @@ def normalize_sample(sample):
 
 
 
-def cal_accumulation_curve(sample, Nrepeat = 1000):
+def cal_accumulation_curve(sample, Nrepeat = 100):
     """Calculate the species accumulation curve"""
     speciesID = []  # build a list of all individual wih their species
     for species, count in sample.items():
