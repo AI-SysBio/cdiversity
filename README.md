@@ -31,6 +31,7 @@ Available methods for clonal identification are `junction`, which simply group c
 	clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = 0.1)
 	
 For the alignement free method, you need to compute the optimal threshold first using the negation sequence. Something important to keep in mind is that the optimal threshold will be different for each repertoire as it depends on the learned tf-idf embeddings. Please refer to `Examples/Analyze_sample.py` to see how to proceed.
+Note that, as the AF method needs to compute a distance matrix for all pairwise sequences, it scales as O(N^2) and becomes slow for repertoires with more than 10k sequences.
 	
 
 
@@ -46,6 +47,8 @@ Implemented indices are richness, richness_chao, Shannon_entropy, Shannon_entrop
 	
 	
 <!-- #### (III) Computing Chao diversity indices
+Incomplete sample information -> Show acumulation curve, show diversity indices and Chao diversity profile
+Link to new reference
 Add some plots and show the chao indices, explain that it's only integers -->
 
 
