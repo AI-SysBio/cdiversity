@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.metrics.cluster import adjusted_mutual_info_score
 from collections import Counter
 
-#from cdiversity import identify_clonal_group
 import cdiversity
 
 
@@ -30,7 +29,7 @@ def main():
     
     print('VJ-junction Clone identification...')
     print('  Computing distance to negation..')
-    threshold = cdiversity.compute_negation_threshold(df['junctionH'].to_numpy(),df_neg['junctionH'].to_numpy(), metric = 'levenshtein')
+    threshold = cdiversity.compute_negation_threshold(df['junctionH'].to_numpy(),df_neg['junctionH'].to_numpy(), metric = 'levenshtein', tol = 0.03, plot=True)
     print('  Clustering sequences..')
     clone_VJJ, _ = cdiversity.identify_clonal_group(df, method='VJJ', clone_threshold = threshold)
     print('Done\n')
@@ -39,7 +38,7 @@ def main():
     print('  Building tf-idf embedings..')
     vector_array, vector_neg = cdiversity.get_kmer_representations_both(BCR_array, BCR_neg_array)
     print('  Computing distance to negation..')
-    threshold = cdiversity.compute_negation_threshold(vector_array, vector_neg, metric = 'cosine')
+    threshold = cdiversity.compute_negation_threshold(vector_array, vector_neg, metric = 'cosine', tol = 0.03, plot=True)
     print('  Clustering sequences..')
     clone_AF, _ = cdiversity.identify_clonal_group(df, method='AF', embeddings = vector_array, clone_threshold = threshold)
     print('Done\n')

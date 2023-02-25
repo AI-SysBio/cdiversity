@@ -14,6 +14,7 @@ from collections import Counter
 
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy import sparse
+from scipy.special import binom
 import sparse_dot_topn.sparse_dot_topn as ct
 
 
@@ -27,7 +28,6 @@ import sparse_dot_topn.sparse_dot_topn as ct
    Implementation of clone identification methods and sequences metrics
 
 """
-
 
 
 
@@ -284,7 +284,7 @@ def get_kmer_representation(sequences, k=4, L=130):
 
 
 
-def compute_negation_threshold(array_sample, array_neg, metric = 'Cosine', plot = False):
+def compute_negation_threshold(array_sample, array_neg, metric = 'Cosine', plot = False, tol = 0.03):
     
     array_sample = array_sample[:5000]
     array_neg = array_neg[:5000]
@@ -314,7 +314,7 @@ def compute_negation_threshold(array_sample, array_neg, metric = 'Cosine', plot 
         
 
     #d_threshold = np.percentile(dist_to_nearest_neg, 3)
-    d_threshold = find_tolerance_threshold(dist_to_nearest_neg)
+    d_threshold = find_tolerance_threshold(dist_to_nearest_neg, tol = tol)
     print('    Threshold set to %.2f' % d_threshold)     
     
     if plot:
@@ -375,7 +375,7 @@ def find_tolerance_threshold(distance_array, tol = 0.03):
             i += 1
             cutoff = test_cutoff[i]
             nwhere = np.where(distance_array < cutoff)[0]
-            FPR = len(nwhere)/ns * 100
+            FPR = len(nwhere)/ns
             
         return cutoff
 
@@ -536,7 +536,7 @@ def normalize_sample(sample):
 
 
 
-def cal_accumulation_curve(sample, Nrepeat = 100):
+def cal_accumulation_curve(sample, Nrepeat = 1000):
     """Calculate the species accumulation curve"""
     speciesID = []  # build a list of all individual wih their species
     for species, count in sample.items():
@@ -582,55 +582,10 @@ def richness(sample):
     S_obs = np.count_nonzero(ki)
     return S_obs
 
-def richness_chao(sample):
-    """
-     [ref] A.  Chao,  “Nonparametric  estimation  of  the  number  of  classes  in  a  population"
-           Scandinavian Journal of statistics, pp. 265–270, 1984.
-    """
-    sample = {k: float(v) for k, v in sample.items()}
-    ki = np.array(list(sample.values()))
-    S_obs = np.count_nonzero(ki)
-
-    if np.min(ki) < 1:
-        denormalize_factor = int(1 / np.min(ki))
-        sample = {k: v * denormalize_factor for k, v in sample.items()}
-        ki = np.array(list(sample.values()))
-    f1 = np.size(np.where(ki == 1))
-    f2 = np.size(np.where(ki == 2))
-
-    if f1 == 0 or f2 == 0:
-        S_chao = S_obs
-    else:
-        S_chao = S_obs + f1 * (f1 - 1) / (2 * (f2 + 1))
-    return S_chao
-
 
 def Shannon_entropy(sample):
     entropy = np.log(Hill_diversity(sample, 1))
     return entropy
-
-
-def Shannon_entropy_Chao(sample):
-    """
-     [ref] A. Chao and T.-J. Shen, “Nonparametric estimation of shannon’s index of diversity
-           when there are unseen species in sample,”Environmental and ecological statistics,
-           vol. 10, no. 4, pp. 429–443, 2003.
-    """
-    sample = {k: float(v) for k, v in sample.items()}
-    ki = np.array(list(sample.values()))
-    if np.min(ki) < 1:
-        denormalize_factor = int(1 / np.min(ki))
-        sample = {k: v * denormalize_factor for k, v in
-                  sample.items()}  # Sample should not be normalized to compute Shanon entropy
-        ki = np.array(list(sample.values()))
-    Ntot = np.sum(np.array(list(sample.values())).astype(np.float))
-    f1 = np.size(np.where(ki == 1))
-    C = 1 - f1 / Ntot
-
-    pi = ki / Ntot * C
-    pi = pi[pi > 0]
-    entropy_chao = np.sum(-pi * np.log(pi) / (1 - np.power(1 - pi, Ntot)))
-    return entropy_chao
 
 
 def Simpson_index(sample):
@@ -645,15 +600,271 @@ def eveness(sample, a=1, b=0):
     return Eveness
 
 
-def eveness_chao(sample):
-    Eveness_chao = np.exp(Shannon_entropy_Chao(sample)) / richness_chao(sample)
-    return Eveness_chao
-
 
 def dominance(sample):
     sample = normalize_sample(sample)
     Dominance = np.max(list(sample.values()))
     return Dominance
+
+
+
+
+
+
+# --------------------- Chao Hills estimators ------------------------- #
+
+
+
+def denormalize(sample): #Useful to get singletons and doubletons information
+    
+    sample = {k: float(v) for k, v in sample.items()}
+    ki = np.array(list(sample.values()))
+    if np.min(ki) < 1:
+        denormalize_factor = int(1 / np.min(ki))
+        sample = {k: v * denormalize_factor for k, v in sample.items()} 
+        
+    return sample
+
+
+def richness_Chao(sample):
+    """
+     [ref] A.  Chao,  “Nonparametric  estimation  of  the  number  of  classes  in  a  population"
+           Scandinavian Journal of statistics, pp. 265–270, 1984.
+           
+    -> Chao1 underestimate true richness at low sample sizes. 
+    For example, the maximum value of SChao1 is (Sobs^2 + 1)/2 when one species 
+    in the sample is a doubleton and all others are singletons. 
+    Thus, SChao1 will strongly correlate with sample size until 
+    Sobs reaches at least the square root of twice the total richness.           
+           
+    """
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    S_obs = np.count_nonzero(ki)
+    f1 = np.size(np.where(ki == 1))
+    f2 = np.size(np.where(ki == 2))
+
+    if f2 > 0:
+        S_chao = S_obs + (f1**2)/(2*f2)
+    else:
+        S_chao = S_obs + f1*(f1-1)/2
+
+    return S_chao
+
+
+def richness_ACE(sample, k = 10):
+    """
+     [ref] Chao, Anne. "Species estimation and applications." 
+           Wiley StatsRef: Statistics Reference Online (2014).
+           
+     [ref] Chao, Anne, and Chun-Huo Chiu. "Species richness: estimation and comparison." 
+           Wiley StatsRef: statistics reference online 1 (2016): 26.
+           
+    -> ACE suffers from a similar problem as Chao1, i.e it underestimates true richness at low sample sizes.
+    """
+    
+    
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    ki = ki[ki>0]
+    f1 = np.size(np.where(ki == 1))
+    
+    Sabun = len(np.where(ki>k)[0])
+    Srare = len(np.where(ki<=k)[0])
+    nrare = np.sum(ki[ki<=k])
+    Crare = 1 - f1/nrare
+    
+    S1 = 0
+    for Xi in ki[ki<=k]:
+        S1 += Xi*(Xi-1)
+    gamma = Srare/Crare*S1/(nrare*(nrare-1)) - 1
+    gamma = max(gamma,0)
+    
+    S_ACE = Sabun + Srare/Crare + f1/Crare*gamma
+    
+    #print()
+    #print(Sabun)
+    #print(Srare)
+    #print(Crare)
+    #print(gamma)
+    #print(f1)
+    
+    return S_ACE
+
+
+def Shannon_entropy_Chao(sample):
+    """
+     [ref] A. Chao and T.-J. Shen, “Nonparametric estimation of shannon’s index of diversity
+           when there are unseen species in sample,”Environmental and ecological statistics,
+           vol. 10, no. 4, pp. 429–443, 2003.
+    """
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    C = coverage(sample)
+    Ntot = np.sum(ki)
+
+    pi = ki / Ntot * C
+    pi = pi[pi > 0]
+    entropy_chao = np.sum(-pi * np.log(pi) / (1 - np.power(1 - pi, Ntot)))
+    return entropy_chao
+
+
+
+def Shannon_entropy_Chao_new2013(sample): #New version from 2013, it's quite complicated and slow to compute, did not test properly
+    """
+     [ref] Chao, Anne, Y. T. Wang, and Lou Jost. "Entropy and the species accumulation curve: 
+           a novel entropy estimator via discovery rates of new species." 
+           Methods in Ecology and Evolution 4.11 (2013): 1091-1100.
+    """
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    ki = ki[ki>0]
+    n = int(np.sum(ki))
+    f1 = np.size(np.where(ki == 1))
+    f2 = np.size(np.where(ki == 2))
+    
+    Sk = 0
+    for k in range(1,n):
+        SXi = 0
+        for Xi in ki:
+            if Xi <= n-k: #//TODO = SIMPLIFY BECAUSE ITS INF
+                #SXi = SXi + Xi/n * binom(n-Xi,k) / binom(n-1,k)
+                Pk = binom(n-Xi,k) / binom(n-1,k)  #//OPTION 1, goes to inf
+                 
+                #Pk = 1   #// OPTION 2 too long
+                #for i in range(k):
+                #    Pk = Pk * (n-Xi-i)/(n-1-i)
+                
+                SXi = SXi + Xi/n * Pk
+        Sk = Sk + 1/k * SXi
+        #print(SXi)
+        
+    #sys.exit()
+    
+    if f2>0:
+        A = 2*f2 / (f1*(n-1) + 2*f2)
+    elif f2==0 and f1>0:
+        A = 2 / ((n-1)*(f1-1) + 2)
+    else:
+        A=1
+    r = np.arange(1,n)
+    Sr = np.sum(1/r*np.power(1-A,r))
+    entropy_chao = Sk + f1/n * np.power(1-A,-n+1)*(-math.log(A) - Sr)
+
+    return entropy_chao
+
+
+def Simpson_index_Chao(sample):
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    Ntot = np.sum(ki)
+    
+    S=0
+    Sn = Ntot*(Ntot-1)
+    for Xi in ki:
+        if Xi >= 2:
+            S += Xi*(Xi-1)/Sn
+    Simpson_chao = S
+    return Simpson_chao
+
+
+def dominance_Chao(sample):
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    kmax = np.max(ki)
+    Ntot = np.sum(ki)
+    Dinf = 1
+    for ki in range(kmax):
+        Dinf = Dinf *(kmax-ki)/(Ntot-ki)
+    Dom = np.power(Dinf,1(1-kmax))
+    return Dom
+
+
+def eveness_Chao(sample):
+    Eveness_chao = np.exp(Shannon_entropy_Chao(sample)) / richness_Chao(sample)
+    return Eveness_chao
+
+
+
+def coverage(sample):
+    """
+    - the coverage (C) of a community is the total probability of
+      occurence of the species observed in the sample.
+      
+    - 1−C is the probability for an individual of the whole community
+      to belong to a species that has not been sampled.
+    """
+    
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    Ntot = np.sum(ki)
+    f1 = np.size(np.where(ki == 1))
+    f2 = np.size(np.where(ki == 2))
+    
+    if f2==0:
+        C = 1 - f1 / Ntot
+    else:
+        C = 1 - f1 / Ntot * (Ntot-1)*f1 / ( (Ntot-1)*f1 + 2*f2 )
+    
+    return C
+
+def Hill_diversity_Chao(sample, q, force_coverage= False):
+
+    """    
+    [ref] Chao, Anne, et al. "Rarefaction and extrapolation with Hill numbers: 
+          a framework for sampling and estimation in species diversity studies." 
+          Ecological monographs 84.1 (2014): 45-67.
+          
+    [ref] Gotelli, Nicholas J., and Anne Chao. "Measuring and estimating species richness, 
+          species diversity, and biotic similarity from sampling data." (2013): 195-211.
+          
+     -> Can only take integer value of q
+    """
+    
+    sample = denormalize(sample)
+    
+    ki = np.array(list(sample.values()))
+    kmax = np.max(ki)
+    Ntot = np.sum(ki)
+    
+    
+    if force_coverage:
+        C = coverage(sample)
+        Dq = Hill_diversity(sample, q)/C
+          
+    if q >= max(2,kmax/4):
+        C = coverage(sample)
+        return Hill_diversity(sample, q)/C
+    
+    if q - int(q) > 0:
+        print('WARNING: Chao estimators only exists with integer Hill diversity orders')
+        print(' Setting q = int(alpha)')
+        q = int(q)
+    else:
+        q = int(q)
+        
+    
+    if q==0:
+        Dq = richness_Chao(sample)
+    
+    elif q==1:
+        Dq = np.exp(Shannon_entropy_Chao(sample))
+    
+    elif q==2:
+        Dq = 1/Simpson_index_Chao(sample)
+        
+    else:
+        S=0
+        for Xi in ki:
+            if Xi >= q:
+                Pi = 1
+                for k in range(q):
+                    Pi = Pi*(Xi-k)/(Ntot-k)
+                S += Pi
+        Dq = np.power(S, 1/(1-q))
+        
+    return Dq
+
 
 
 # ----------------------- Similarity indexes ----------------------- #
@@ -687,10 +898,32 @@ def diversity_profile(sample, n=100):
         div_profile[ai] = Hill_diversity(sample, alpha)
         
     return div_profile, alphas
+
+
+def diversity_profile_Chao(sample):  
+    sample = denormalize(sample)
+    ki = np.array(list(sample.values()))
+    #kmax = np.max(ki)
+    
+    a = np.linspace(-1,1,num=20)
+    alphas = transform_func(a)
+    alphas[alphas>10000] = 1e8 #overflow when converting to int
+    alphas = np.sort(list(set(alphas.astype(int))))
+    div_profile = []
+    div_ = 0
+    for ai, alpha in enumerate(alphas):
+        div = Hill_diversity_Chao(sample, alpha)
+        div_profile.append(div)
+        div = div_
+    
+    alphas = alphas.astype(float)
+    alphas[-1] = np.inf
+    return np.array(div_profile), np.array(alphas)
         
 
 # get a series of alpha by transformation function
 def transform_func(initial_axis, factor = 0.75):
+    #initial axsis should be bounded between -1 and 1
     y1 = np.tan(math.pi*initial_axis/2)
     y2 = np.zeros(len(y1))
     y2[y1<=1e3] = np.exp(y1[y1<1e3]/factor)
