@@ -118,6 +118,25 @@ def main():
     plt.show()
     
     
+    div_profile_true_chao, q_array = cdiversity.diversity_profile_Chao(Counter(clone_true))
+    alpha_axis_chao = []
+    for q in q_array:
+        ai = np.argmin(np.abs(alpha_axis-q))
+        alpha_axis_chao.append(ai)
+    
+    plt.figure(figsize=(8,4))
+    plt.plot(div_profile_true, lw=3, color = 'black')
+    plt.scatter(alpha_axis_chao, div_profile_true_chao, color = 'red', s=50)
+    plt.plot(alpha_axis_chao, div_profile_true_chao, color = 'red', lw=2, ls='--')
+    plt.xlim(0,len(alpha_axis))
+    plt.legend(fontsize=12)
+    plt.xticks([0,int(len(alpha_axis)/2),len(alpha_axis)], ['0','1',r'$\infty$'])
+    plt.yscale('log')
+    plt.xlabel(r"$\alpha$")
+    plt.ylabel(r"Hill's diversity $^\alpha D$")
+    plt.show()
+    
+    
     
     
     
