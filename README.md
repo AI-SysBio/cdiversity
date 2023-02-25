@@ -57,6 +57,6 @@ Add some plots and show the chao indices, explain that it's only integers -->
 
 [1] Pelissier, A, Luo, S, et al. "Quantifying B Cell Clonal Diversity In Repertoire Data". *Submitted to Frontier in immunology* (2022) [[Preprint]](https://www.biorxiv.org/content/10.1101/2022.12.12.520133)
 
-[2] Lindenbaum, Ofir, et al. "Alignment free identification of clones in B cell receptor repertoires." Nucleic acids research 49.4 (2021): e21-e21.
+[2] Lindenbaum, Ofir, et al. "Alignment free identification of clones in B cell receptor repertoires." *Nucleic acids research* 49.4 (2021): e21-e21.
 
 <!--[2] Pelissier, A et Rodriguez, M "Understanding the Germinal Center Reaction Through Clonal Diversity Indices" (in preparation)-->
