@@ -63,4 +63,4 @@ Add some plots and show the chao indices, explain that it's only integers -->
 
 [2] Lindenbaum, Ofir, et al. "Alignment free identification of clones in B cell receptor repertoires." *Nucleic acids research* 49.4 (2021): e21-e21.
 
-[3] Nouri, Nima, and Steven H. Kleinstein. "Optimized threshold inference for partitioning of clones from high-throughput B cell repertoire sequencing data." Frontiers in immunology 9 (2018): 1687.
+[3] Nouri, Nima, and Steven H. Kleinstein. "Optimized threshold inference for partitioning of clones from high-throughput B cell repertoire sequencing data." *Frontiers in immunology* 9 (2018).
