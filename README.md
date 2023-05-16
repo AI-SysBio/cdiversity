@@ -52,14 +52,14 @@ Add some plots and show the chao indices, explain that it's only integers -->
 
 
 
-## References
-#### Citing Cdiversity
+# References
+### Citing Cdiversity
 
 [1] [[url]](https://www.frontiersin.org/articles/10.3389/fimmu.2023.1123968/full) Pelissier, A, Luo, S & al. "Exploring the impact of clonal definition on B-cell diversity: implications for the analysis of immune repertoires." *Frontiers in Immunology* 14 (2023).
 
 <!--[2] Pelissier, A et Rodriguez, M "Understanding the Germinal Center Reaction Through Clonal Diversity Indices" (in preparation)-->
 
-#### Implemented clonal identification methods
+### Implemented clonal identification methods
 
 [2] Lindenbaum, Ofir, et al. "Alignment free identification of clones in B cell receptor repertoires." *Nucleic acids research* 49.4 (2021): e21-e21.
 
